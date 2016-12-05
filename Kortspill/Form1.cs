@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Kortspill
 {
@@ -18,72 +19,144 @@ namespace Kortspill
 		}
 		Random rng = new Random();
 
-		Bitmap[] suitArray = { Properties.Resources.spar, Properties.Resources.hjerter,
-							Properties.Resources.kløver, Properties.Resources.ruter};
+		string[] fileArray = Directory.GetFiles(@"..\..\Resources");
+		Image[,] picArray = new Image[4, 13];
 
-		List<Card> playerCards = new List<Card>();
+		List<Card> playerHand = new List<Card>();
 		List<Card> dealerCards = new List<Card>();
+		int cardSum = 0;
 
-		int cardsDrawn = 0;
-		bool[,] isCardDrawn = new bool[4, 13];
+		bool[,,] isCardDrawn = new bool[1, 4, 13];
 
-		public class Card
+		class Card
 		{
-			public Point startPoint;
-			public PictureBox suit;
-			public Label valuelabel;
+			public PictureBox cardPB;
 
-			public Card(int x, int y, Bitmap image, string value)
+			public bool isAce = false;
+			public bool aceAccounted = false;
+			public int value;
+
+			public Card(int x, int y, Image image, int num)
 			{
-				startPoint = new Point(x, y);
+				cardPB = new PictureBox();
+				cardPB.Location = new Point(x, y);
+				cardPB.Width = 75;
+				cardPB.Height = 109;
+				cardPB.BackgroundImage = image;
+				cardPB.BackgroundImageLayout = ImageLayout.Zoom;
+				cardPB.Visible = true;
 
-				suit = new PictureBox();
-				suit.Location = startPoint;
-				suit.Width = 40;
-				suit.Height = 40;
-				suit.Image = image;
-
-				valuelabel = new Label();
-				valuelabel.Location = new Point(x + 40, y);
-				valuelabel.Size = 
-				valuelabel.Text = value;
+				value = num;
 			}
-
 		};
 
-		private void cardHit()
+		private void Form1_Load(object sender, EventArgs e)
 		{
-			int suit = rng.Next(0, suitArray.Length);
-			int value = rng.Next(0, 13);
-
-			if (!isCardDrawn[suit, value])
+			int count = 0;
+			for (int i = 0; i < picArray.GetLength(0); i++)
 			{
-				suit1PB.BackgroundImage = suitArray[suit];
-
-				switch (value)
+				for (int j = 0; j < picArray.GetLength(1); j++)
 				{
-					case 0:
-						value1Lbl.Text = "A";
-						break;
-					case 10:
-						value1Lbl.Text = "J";
-						break;
-					case 11:
-						value1Lbl.Text = "Q";
-						break;
-					case 12:
-						value1Lbl.Text = "K";
-						break;
-					default:
-						value1Lbl.Text = (value + 1).ToString();
-						break;
+					picArray[i, j] = Image.FromFile(fileArray[count], false);
+					count++;
 				}
-				isCardDrawn[suit, value] = true;
 			}
-			else
-				cardHit();
 		}
 
+		private void startBtn_Click(object sender, EventArgs e)
+		{
+			Player1GB.Visible = true;
+			DealerGB.Visible = true;
+
+			for (int i = 0; i < 2; i++)
+			{
+				cardHit();
+			}
+		
+			startBtn.Visible = false;
+		}
+
+		private void hitBtn_Click(object sender, EventArgs e)
+		{
+			if (cardSum < 21)
+				cardHit();
+			else
+			{
+				foreach (Card element in playerHand)
+					if (element.isAce && element.aceAccounted)
+					{
+						DialogResult result = MessageBox.Show("Du har tapt, vil du spille igjen?", "Du tapte!", MessageBoxButtons.YesNo);
+
+						if (result == DialogResult.Yes)
+						{
+							// TODO: make restart option
+						}
+						else
+						{
+							DealerGB.Visible = false;
+							Player1GB.Visible = false;
+
+						}
+					}
+			}
+		}
+
+		
+		private void cardHit()
+		{
+			int suit = rng.Next(0, picArray.GetLength(0));
+			int value = rng.Next(0, picArray.GetLength(1));
+
+			foreach (Card element in playerHand)
+			{
+				if (element.isAce)
+				{
+
+				}
+			}
+
+			bool actuallyDrew = false;
+			for (int i = 0; i < isCardDrawn.GetLength(0); i++)
+			{
+				if (!isCardDrawn[i, suit, value])
+				{
+					int trueValue = 0;
+					if (value == 0)
+						trueValue = 11;
+					else if (value > 0 && value < 10)
+						trueValue = value + 1;
+					else if (value >= 10)
+						trueValue = 10;
+					playerHand.Add(new Card(7 + playerHand.Count() * 75, 20, picArray[suit, value], trueValue));
+					Player1GB.Controls.Add(playerHand.Last().cardPB);
+					isCardDrawn[i, suit, value] = true;
+					actuallyDrew = true;
+
+					if (value == 0)
+						playerHand.Last().isAce = true;
+					break;
+				}
+			}
+
+			if (!actuallyDrew)
+				cardHit();
+
+			if (playerHand.Last().isAce)
+			{
+				if (cardSum + 11 <= 21)
+				{
+					cardSum += value + 1;
+					hand0SumLbl.Text = cardSum.ToString();
+				} else if (cardSum + 11 < 21 )
+				{
+					cardSum += 11;
+				}
+			} else if ( )
+		}
+
+
+
+		/*
 		private void hitBtn_Click(object sender, EventArgs e)
 		{ 
 			if (cardsDrawn < 52)
@@ -114,17 +187,7 @@ namespace Kortspill
 				}
 			}
 		}
+		*/
 
-		private void startBtn_Click(object sender, EventArgs e)
-		{
-			Player1GB.Visible = true;
-			DealerGB.Visible = true;
-
-			for (int i = 0; i < 2; i++)
-			{
-				playerCards.Add(new Card());
-				playerCards[i].startPoint = new Point()
-			}
-		}
 	}
 }
