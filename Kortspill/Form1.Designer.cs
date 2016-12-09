@@ -30,15 +30,18 @@
 		{
 			this.startBtn = new System.Windows.Forms.Button();
 			this.Player1GB = new System.Windows.Forms.GroupBox();
+			this.hand0SumLbl = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
 			this.surrenderBtn = new System.Windows.Forms.Button();
 			this.doubleBtn = new System.Windows.Forms.Button();
 			this.splitBtn = new System.Windows.Forms.Button();
 			this.standBtn = new System.Windows.Forms.Button();
 			this.hitBtn = new System.Windows.Forms.Button();
 			this.DealerGB = new System.Windows.Forms.GroupBox();
-			this.label1 = new System.Windows.Forms.Label();
-			this.hand0SumLbl = new System.Windows.Forms.Label();
+			this.HolePB = new System.Windows.Forms.PictureBox();
 			this.Player1GB.SuspendLayout();
+			this.DealerGB.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.HolePB)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// startBtn
@@ -70,6 +73,24 @@
 			this.Player1GB.Text = "Spiller 1";
 			this.Player1GB.Visible = false;
 			// 
+			// hand0SumLbl
+			// 
+			this.hand0SumLbl.AutoSize = true;
+			this.hand0SumLbl.Location = new System.Drawing.Point(626, 47);
+			this.hand0SumLbl.Name = "hand0SumLbl";
+			this.hand0SumLbl.Size = new System.Drawing.Size(16, 17);
+			this.hand0SumLbl.TabIndex = 6;
+			this.hand0SumLbl.Text = "0";
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(583, 44);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(36, 17);
+			this.label1.TabIndex = 5;
+			this.label1.Text = "Sum";
+			// 
 			// surrenderBtn
 			// 
 			this.surrenderBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -79,6 +100,7 @@
 			this.surrenderBtn.TabIndex = 4;
 			this.surrenderBtn.Text = "Surrender";
 			this.surrenderBtn.UseVisualStyleBackColor = true;
+			this.surrenderBtn.Click += new System.EventHandler(this.surrenderBtn_Click);
 			// 
 			// doubleBtn
 			// 
@@ -109,6 +131,7 @@
 			this.standBtn.TabIndex = 1;
 			this.standBtn.Text = "Stand";
 			this.standBtn.UseVisualStyleBackColor = true;
+			this.standBtn.Click += new System.EventHandler(this.standBtn_Click);
 			// 
 			// hitBtn
 			// 
@@ -123,6 +146,7 @@
 			// 
 			// DealerGB
 			// 
+			this.DealerGB.Controls.Add(this.HolePB);
 			this.DealerGB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.DealerGB.Location = new System.Drawing.Point(12, 12);
 			this.DealerGB.Name = "DealerGB";
@@ -132,23 +156,13 @@
 			this.DealerGB.Text = "Dealer";
 			this.DealerGB.Visible = false;
 			// 
-			// label1
+			// HolePB
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(583, 44);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(36, 17);
-			this.label1.TabIndex = 5;
-			this.label1.Text = "Sum";
-			// 
-			// hand0SumLbl
-			// 
-			this.hand0SumLbl.AutoSize = true;
-			this.hand0SumLbl.Location = new System.Drawing.Point(626, 47);
-			this.hand0SumLbl.Name = "hand0SumLbl";
-			this.hand0SumLbl.Size = new System.Drawing.Size(16, 17);
-			this.hand0SumLbl.TabIndex = 6;
-			this.hand0SumLbl.Text = "0";
+			this.HolePB.Location = new System.Drawing.Point(7, 20);
+			this.HolePB.Name = "HolePB";
+			this.HolePB.Size = new System.Drawing.Size(75, 109);
+			this.HolePB.TabIndex = 0;
+			this.HolePB.TabStop = false;
 			// 
 			// Form1
 			// 
@@ -163,6 +177,8 @@
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.Player1GB.ResumeLayout(false);
 			this.Player1GB.PerformLayout();
+			this.DealerGB.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.HolePB)).EndInit();
 			this.ResumeLayout(false);
 
 		}
@@ -179,6 +195,7 @@
 		private System.Windows.Forms.Button splitBtn;
 		private System.Windows.Forms.Label hand0SumLbl;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.PictureBox HolePB;
 	}
 }
 

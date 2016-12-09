@@ -11,48 +11,34 @@ using System.IO;
 
 namespace Kortspill
 {
+	
+
 	public partial class Form1 : Form
 	{
 		public Form1()
 		{
 			InitializeComponent();
 		}
+
+		
 		Random rng = new Random();
 
-		string[] fileArray = Directory.GetFiles(@"..\..\Resources");
+		string[] fileArray = Directory.GetFiles(@"..\..\Resources\cards");
 		Image[,] picArray = new Image[4, 13];
+		Image cardBack = Properties.Resources.cardback;
 
 		List<Card> playerHand = new List<Card>();
-		List<Card> dealerCards = new List<Card>();
-		int cardSum = 0;
+		List<Card> dealerHand = new List<Card>();
+		int playerSum, dealerSum;
 
 		bool[,,] isCardDrawn = new bool[1, 4, 13];
-
-		class Card
-		{
-			public PictureBox cardPB;
-
-			public bool isAce = false;
-			public bool aceAccounted = false;
-			public int value;
-
-			public Card(int x, int y, Image image, int num)
-			{
-				cardPB = new PictureBox();
-				cardPB.Location = new Point(x, y);
-				cardPB.Width = 75;
-				cardPB.Height = 109;
-				cardPB.BackgroundImage = image;
-				cardPB.BackgroundImageLayout = ImageLayout.Zoom;
-				cardPB.Visible = true;
-
-				value = num;
-			}
-		};
 
 		private void Form1_Load(object sender, EventArgs e)
 		{
 			int count = 0;
+
+			// this sets all images into picArray
+
 			for (int i = 0; i < picArray.GetLength(0); i++)
 			{
 				for (int j = 0; j < picArray.GetLength(1); j++)
@@ -70,56 +56,76 @@ namespace Kortspill
 
 			for (int i = 0; i < 2; i++)
 			{
-				cardHit();
+				cardHit(playerHand, Player1GB);
+				playerSum += playerHand.Last().value;
+
+				cardHit(dealerHand, DealerGB);
+				dealerSum += dealerHand.Last().value;
 			}
-		
+
+			// This is to set up the hole-card (hide one of Dealer's cards before player has finished)
+			dealerHand[0].cardPB.BackgroundImage = cardBack;
+
+			hand0SumLbl.Text = playerSum.ToString();
+
+
 			startBtn.Visible = false;
+
+			if (playerSum == 21)
+			{
+				MessageBox.Show("Du har fått en blackjack! Gratulerer!", "Gratulerer!", MessageBoxButtons.OK);
+			}
 		}
 
 		private void hitBtn_Click(object sender, EventArgs e)
 		{
-			if (cardSum < 21)
-				cardHit();
-			else
+			cardHit(playerHand, Player1GB);
+
+			playerSum = 0;
+			foreach (Card card in playerHand)
+				playerSum += card.value;
+
+			aceCorrector(playerSum, playerHand);
+			
+
+			hand0SumLbl.Text = playerSum.ToString();
+
+
+			if (playerSum > 21)
 			{
-				foreach (Card element in playerHand)
-					if (element.isAce && element.aceAccounted)
-					{
-						DialogResult result = MessageBox.Show("Du har tapt, vil du spille igjen?", "Du tapte!", MessageBoxButtons.YesNo);
-
-						if (result == DialogResult.Yes)
-						{
-							// TODO: make restart option
-						}
-						else
-						{
-							DealerGB.Visible = false;
-							Player1GB.Visible = false;
-
-						}
-					}
+				// Game is lost, gimme a message and stuff
+				MessageBox.Show("Du har gått bust, vil du starte på nytt?", "Du har tapt!");
+				reset();
+				hand0SumLbl.Text = "0";
 			}
 		}
 
-		
-		private void cardHit()
+		private void standBtn_Click(object sender, EventArgs e)
+		{
+			hitBtn.Enabled = false;
+			dealersTurn();
+			winChecker();
+		}
+
+		// Draws a new card and fixes everything around it.
+		private void cardHit(List<Card> hand, GroupBox groupBox)
 		{
 			int suit = rng.Next(0, picArray.GetLength(0));
 			int value = rng.Next(0, picArray.GetLength(1));
 
-			foreach (Card element in playerHand)
-			{
-				if (element.isAce)
-				{
-
-				}
-			}
-
 			bool actuallyDrew = false;
+
+			// the loop is here in case isCardDrawn has more than one 0th dimension, i.e. more than one deck. 
 			for (int i = 0; i < isCardDrawn.GetLength(0); i++)
 			{
 				if (!isCardDrawn[i, suit, value])
-				{
+				{	
+					/* trueValue is used to make the cards hold their own value. 
+					 * 
+					 * aces are initially 11, can be 1 but that's changed elsewhere
+					 * 2-10 are values 2-10, respectively
+					 * face cards are 10
+					 */
 					int trueValue = 0;
 					if (value == 0)
 						trueValue = 11;
@@ -127,67 +133,102 @@ namespace Kortspill
 						trueValue = value + 1;
 					else if (value >= 10)
 						trueValue = 10;
-					playerHand.Add(new Card(7 + playerHand.Count() * 75, 20, picArray[suit, value], trueValue));
-					Player1GB.Controls.Add(playerHand.Last().cardPB);
+
+					hand.Add(new Card(7 + hand.Count() * 75, 20, picArray[suit, value], trueValue));
+					groupBox.Controls.Add(hand.Last().cardPB);
 					isCardDrawn[i, suit, value] = true;
 					actuallyDrew = true;
 
 					if (value == 0)
-						playerHand.Last().isAce = true;
+						hand.Last().isAce = true;
+
 					break;
 				}
 			}
 
 			if (!actuallyDrew)
-				cardHit();
-
-			if (playerHand.Last().isAce)
-			{
-				if (cardSum + 11 <= 21)
-				{
-					cardSum += value + 1;
-					hand0SumLbl.Text = cardSum.ToString();
-				} else if (cardSum + 11 < 21 )
-				{
-					cardSum += 11;
-				}
-			} else if ( )
+				cardHit(hand, groupBox);
 		}
 
-
-
-		/*
-		private void hitBtn_Click(object sender, EventArgs e)
-		{ 
-			if (cardsDrawn < 52)
+		private void dealersTurn()
+		{
+			while (dealerSum <= 16)
 			{
-				cardHit();
-				cardsDrawn++;
-				cardCounterLbl.Text = cardsDrawn.ToString();
+				cardHit(dealerHand, DealerGB);
+				dealerSum += dealerHand.Last().value;
+				aceCorrector(dealerSum, dealerHand);
 			}
-			else
-			{
-				DialogResult reshuffle = MessageBox.Show("Du har trukket alle kortene, vil du stokke på nytt?", 
-													"Det er ikke flere kort igjen!", MessageBoxButtons.YesNo);
-				if (reshuffle == DialogResult.Yes)
-				{
-					cardsDrawn = 0;
-					cardCounterLbl.Text = cardsDrawn.ToString();
-					suit1PB.BackgroundImage = null;
-					value1Lbl.Text = "";
+			//TODO: make an AI for the dealer
+		}
 
-					for (int i = 0; i < 4; i++)
-						for (int j = 0; j < 13; j++)
-							isCardDrawn[i, j] = false;
-				}
-				else
+		// If the hand is over 21 and there are aces in it, this corrects that. 
+		private void aceCorrector(int workingNum, List<Card> hand)
+		{
+			if (workingNum > 21)
+			{
+				foreach (Card card in hand)
 				{
-					suit1PB.BackgroundImage = null;
-					value1Lbl.Text = "";
+					if (card.isAce && !card.aceAccounted)
+					{
+						card.value = 1;
+						card.aceAccounted = true;
+						workingNum -= 10;
+
+						if (workingNum <= 21)
+							break;
+					}
 				}
 			}
 		}
-		*/
 
+
+		private void winChecker()
+		{
+			// TODO: Check if player has won
+		}
+
+		private void reset()
+		{
+			foreach (Card card in playerHand)
+				Player1GB.Controls.Remove(card.cardPB);
+			playerHand.Clear();
+			playerHand.TrimExcess();
+
+			playerSum = 0;
+
+			// Doing this because I'm too lazy to make it fix everything on its own
+			// Instead just use already working assets
+			startBtn.Text = "Restart";
+			startBtn.Visible = true;
+		}
+
+
+		private void surrenderBtn_Click(object sender, EventArgs e)
+		{
+			reset();
+		}
 	}
+
+	class Card
+	{
+		public PictureBox cardPB;
+
+		public bool isAce = false;
+		public bool aceAccounted = false;
+
+		public int value;
+
+		public Card(int x, int y, Image image, int num)
+		{
+			cardPB = new PictureBox();
+			cardPB.Location = new Point(x, y);
+			cardPB.Width = 75;
+			cardPB.Height = 109;
+			cardPB.BackgroundImage = image;
+			cardPB.BackgroundImageLayout = ImageLayout.Zoom;
+			cardPB.Visible = true;
+
+			value = num;
+		}
+	};
 }
