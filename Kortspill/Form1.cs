@@ -11,8 +11,6 @@ using System.IO;
 
 namespace Kortspill
 {
-	
-
 	public partial class Form1 : Form
 	{
 		public Form1()
@@ -25,7 +23,6 @@ namespace Kortspill
 
 		string[] fileArray = Directory.GetFiles(@"..\..\Resources\cards");
 		Image[,] picArray = new Image[4, 13];
-		Image cardBack = Properties.Resources.cardback;
 
 		List<Card> playerHand = new List<Card>();
 		List<Card> dealerHand = new List<Card>();
@@ -53,6 +50,7 @@ namespace Kortspill
 		{
 			Player1GB.Visible = true;
 			DealerGB.Visible = true;
+            HolePB.Visible = true;
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -62,9 +60,6 @@ namespace Kortspill
 				cardHit(dealerHand, DealerGB);
 				dealerSum += dealerHand.Last().value;
 			}
-
-			// This is to set up the hole-card (hide one of Dealer's cards before player has finished)
-			dealerHand[0].cardPB.BackgroundImage = cardBack;
 
 			hand0SumLbl.Text = playerSum.ToString();
 
@@ -103,8 +98,26 @@ namespace Kortspill
 		private void standBtn_Click(object sender, EventArgs e)
 		{
 			hitBtn.Enabled = false;
+			HolePB.Visible = false;
 			dealersTurn();
 			winChecker();
+		}
+
+		private void surrenderBtn_Click(object sender, EventArgs e)
+		{
+			reset();
+		}
+
+		private void dealersTurn()
+		{
+			while (dealerSum <= 16)
+			{
+				cardHit(dealerHand, DealerGB);
+				dealerSum += dealerHand.Last().value;
+				aceCorrector(dealerSum, dealerHand);
+			}
+
+			DealerSumLbl.Text = dealerSum.ToString();
 		}
 
 		// Draws a new card and fixes everything around it.
@@ -150,17 +163,6 @@ namespace Kortspill
 				cardHit(hand, groupBox);
 		}
 
-		private void dealersTurn()
-		{
-			while (dealerSum <= 16)
-			{
-				cardHit(dealerHand, DealerGB);
-				dealerSum += dealerHand.Last().value;
-				aceCorrector(dealerSum, dealerHand);
-			}
-			//TODO: make an AI for the dealer
-		}
-
 		// If the hand is over 21 and there are aces in it, this corrects that. 
 		private void aceCorrector(int workingNum, List<Card> hand)
 		{
@@ -184,28 +186,43 @@ namespace Kortspill
 
 		private void winChecker()
 		{
-			// TODO: Check if player has won
+			if (playerSum <= dealerSum && dealerSum <= 21)
+			{
+				MessageBox.Show("Du har tapt, dealer hadde flere poeng enn deg. Vil du spille igjen?",
+								"Du har tapt!", MessageBoxButtons.OK);
+				reset();
+			}
+			else
+			{
+				MessageBox.Show("Du vant! Gratulerer. Vil du spille igjen?",
+								"Gratulerer!", MessageBoxButtons.OK);
+				reset();
+			}
 		}
 
 		private void reset()
 		{
+			// Reset all player attributes
 			foreach (Card card in playerHand)
 				Player1GB.Controls.Remove(card.cardPB);
 			playerHand.Clear();
 			playerHand.TrimExcess();
-
 			playerSum = 0;
+
+			// Reset all dealer attributes
+            foreach (Card card in dealerHand)
+                DealerGB.Controls.Remove(card.cardPB);
+            dealerHand.Clear();
+            dealerHand.TrimExcess();
+            dealerSum = 0;
 
 			// Doing this because I'm too lazy to make it fix everything on its own
 			// Instead just use already working assets
 			startBtn.Text = "Restart";
 			startBtn.Visible = true;
-		}
 
-
-		private void surrenderBtn_Click(object sender, EventArgs e)
-		{
-			reset();
+            HolePB.Visible = false;
+			hitBtn.Enabled = true;
 		}
 	}
 

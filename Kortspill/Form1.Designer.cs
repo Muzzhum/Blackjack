@@ -39,6 +39,8 @@
 			this.hitBtn = new System.Windows.Forms.Button();
 			this.DealerGB = new System.Windows.Forms.GroupBox();
 			this.HolePB = new System.Windows.Forms.PictureBox();
+			this.DealerSumLbl = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
 			this.Player1GB.SuspendLayout();
 			this.DealerGB.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.HolePB)).BeginInit();
@@ -146,7 +148,9 @@
 			// 
 			// DealerGB
 			// 
+			this.DealerGB.Controls.Add(this.DealerSumLbl);
 			this.DealerGB.Controls.Add(this.HolePB);
+			this.DealerGB.Controls.Add(this.label3);
 			this.DealerGB.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.DealerGB.Location = new System.Drawing.Point(12, 12);
 			this.DealerGB.Name = "DealerGB";
@@ -158,11 +162,33 @@
 			// 
 			// HolePB
 			// 
+			this.HolePB.BackColor = System.Drawing.Color.Transparent;
+			this.HolePB.BackgroundImage = global::Kortspill.Properties.Resources.cardback;
+			this.HolePB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
 			this.HolePB.Location = new System.Drawing.Point(7, 20);
 			this.HolePB.Name = "HolePB";
 			this.HolePB.Size = new System.Drawing.Size(75, 109);
+			this.HolePB.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.HolePB.TabIndex = 0;
 			this.HolePB.TabStop = false;
+			// 
+			// DealerSumLbl
+			// 
+			this.DealerSumLbl.AutoSize = true;
+			this.DealerSumLbl.Location = new System.Drawing.Point(774, 19);
+			this.DealerSumLbl.Name = "DealerSumLbl";
+			this.DealerSumLbl.Size = new System.Drawing.Size(16, 17);
+			this.DealerSumLbl.TabIndex = 8;
+			this.DealerSumLbl.Text = "0";
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(731, 16);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(36, 17);
+			this.label3.TabIndex = 7;
+			this.label3.Text = "Sum";
 			// 
 			// Form1
 			// 
@@ -178,6 +204,7 @@
 			this.Player1GB.ResumeLayout(false);
 			this.Player1GB.PerformLayout();
 			this.DealerGB.ResumeLayout(false);
+			this.DealerGB.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.HolePB)).EndInit();
 			this.ResumeLayout(false);
 
@@ -196,6 +223,8 @@
 		private System.Windows.Forms.Label hand0SumLbl;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.PictureBox HolePB;
+		private System.Windows.Forms.Label DealerSumLbl;
+		private System.Windows.Forms.Label label3;
 	}
 }
 
